@@ -37,13 +37,15 @@
                                                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="field-holder">
                                                                 <label >Restaurant name</label>
-                                                                <input type="text" id="restaurant_name" name="restaurant_name" value="{{V_form.vendor_name}}">
+                                                                {{v_form.vendor_name}}
+                                                                <!-- <input type="text" id="restaurant_name" name="restaurant_name" value="{{V_form.vendor_name}}"> -->
                                                             </div>
                                                         </div>
                                                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="field-holder">
                                                                 <label>Restaurant License</label>
-                                                                <input type="file" id="file_upload" name="file_upload">
+                                                                {{v_form.vendor_license}}
+                                                                <!-- <input type="file" id="file_upload" name="file_upload"> -->
                                                             </div>
                                                         </div>    
                                                         
@@ -87,7 +89,7 @@
                                                  {% endfor %}
                                             {% endif %}
                                         {% endfor %}
-                                        
+
                                         <li style="color: red;">{{form.non_field_errors}}</li>
                                     </ul>
                                     <div class="row">
