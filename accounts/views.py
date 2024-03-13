@@ -9,8 +9,8 @@ from .utils import detectUser,send_verification_email
 from django.contrib.auth.decorators import login_required , user_passes_test
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import PermissionDenied
-
-
+from vendor.models import vendor
+from .context_processors import get_vendor
 
 # Restrict the vendor from accessing the customer page
 def check_role_vendor(user):
@@ -95,7 +95,9 @@ def registerVendor(request):
            vendor.save()
 
            # send verification email 
-           send_verification_email(request, user)
+           mail_subject = 'Please activate your account'
+           email_template = 'accounts/emails/account_varification_email.html'
+           send_verification_email(request, user, mail_subject, email_template)
 
            messages.success(request, 'Your account has been registered successfully! Please wait for the approval.')
            return redirect('registerVendor')
@@ -171,7 +173,13 @@ def custDashboard(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor)
 def vendorDashboard(request):
-    return render(request, 'accounts/vendorDashboard.html')
+    Vendor = vendor.objects.get(user=request.user)
+
+    # print(Vendor)
+    context = {
+        'vendor' : Vendor,
+    }
+    return render(request, 'accounts/vendorDashboard.html', context)
 
 
 def forgot_password(request):
@@ -226,5 +234,8 @@ def reset_password(request):
         else:
             messages.error(request, 'Password do not match!')
             return redirect('reset_password')
+        
     return render(request, 'accounts/reset_password.html')
+        
+        
 
