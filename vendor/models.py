@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import User, UserProfile
+from accounts.utils import send_notification
 
 
 class vendor(models.Model):
@@ -13,3 +14,27 @@ class vendor(models.Model):
 
     def __str__(self):
         return self.vendor_name
+    
+    def save(self,*args,**kwargs):
+        if self.pk is not None:
+            #update
+            orig = vendor.objects.get(pk=self.pk)
+            if orig.is_approved != self.is_approved:
+                mail_template = 'accounts/emails/admin_approval_email.html'
+                context = {
+                        'user' : self.user,
+                        'is_approved' : self.is_approved,
+                        'to_email' : self.user.email
+                    }
+                if self.is_approved == True:
+                    #send notification
+                    mail_subject = "Congratulation! Now you can add your manu"
+                    
+                    send_notification(mail_subject, mail_template, context)
+
+                else:
+                    mail_subject = "Sorry ! you a eligible for publish your restro. "
+                    #send notification is already approved
+                    send_notification(mail_subject, mail_template, context)
+
+        return super(vendor, self).save(*args,**kwargs)
