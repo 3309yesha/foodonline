@@ -1,5 +1,13 @@
 from django.shortcuts import render
-
+from .forms import VendorForm
+from accounts.forms import UserProfileForm
 
 def vprofile(request):
-    return render(request, 'vendor/vprofile.html')
+    profile_form = UserProfileForm()
+    vendor_form = VendorForm()
+
+    context = {
+        'profile_form': profile_form,
+        'vendor_form': vendor_form,
+    }
+    return render(request, 'vendor/vprofile.html', context)
