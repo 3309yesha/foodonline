@@ -6,7 +6,7 @@ from django.contrib import messages
 from accounts.models import UserProfile
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render,redirect,HttpResponse
-
+from .models import vendor
 
 
 
@@ -25,7 +25,7 @@ from accounts.views import check_role_vendor
 
 # helper function for get vendor
 def get_vendor(request):
-    Vendor = Vendor.objects.get(user=request.user)
+    Vendor = vendor.objects.get(user=request.user)
     return Vendor
 
 # Create your views here.
