@@ -7,7 +7,7 @@ from accounts.models import UserProfile
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render,redirect,HttpResponse
 from .models import vendor
-
+from menu.models import Category
 
 
 
@@ -58,3 +58,11 @@ def vprofile(request):
     }
     return render(request, 'vendor/vprofile.html', context)
 
+
+def menu_builder(request):
+    Vendor = vendor.objects.get(user=request.user)
+    categories = Category.objects.filter(vendor=Vendor)
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'vendor/menu_builder.html', context)
