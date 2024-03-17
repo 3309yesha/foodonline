@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'accounts',
     'vendor',
     'menu',
+    'marketplace',
 
 ]
 
@@ -155,5 +156,5 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'foodonline Marketplace <foodonline2003@gmail.com>'
 
-GOOGLE_API_KEY = 'AIzaSyC_I_RpG4O67u-plrS0eNl-ipNekTD8cm8'
+GOOGLE_API_KEY = 'AIzaSyDi2UUGCPj-QPQ0cI5Hta2FQTkeuAtc9Ho'
 
