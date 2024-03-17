@@ -26,16 +26,21 @@ def vendor_detail(request, vendor_slug):
             queryset = FoodItem.objects.filter(is_available=True)
         )
     )
+    if request.user.is_authenticated:
+        cart_items = Cart.objects.filter(user=request.user)
+    else:
+        cart_items = None
     context = {
         'vendor': Vendor,
         'categories': categories,
+        'cart_items': cart_items,
     }
     return render(request, 'marketplace/vendor_detail.html', context)
 
 
 def add_to_cart(request, food_id):
     if request.user.is_authenticated:
-        if request.is_ajax():
+        if request. headers. get( 'x-requested-with') == 'XMLHttpRequest' :
             # Check if the food item exists
             try:
                 fooditem = FoodItem.objects.get(id=food_id)
