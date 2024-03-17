@@ -72,64 +72,134 @@ function onPlaceChanged (){
       }
 
 
-      $(document).ready(function(){
-        // add to cart
-        $('.add_to_cart').on('click', function(e){
-            e.preventDefault();
-            
-        food_id = $(this).attr('data-id');
-        url = $(this).attr('data-url');
+$(document).ready(function(){
+ //add to cart
+ $('.add_to_cart').on('click', function (e) {
+    e.preventDefault();
 
-
-        $.ajax({
-            type: 'GET',
-            url: url,
-            success: function(response){
-                console.log(response)
-                if(response.status == 'login_requierd'){
-                    swal('Title', 'subtitle', 'info')
-                }else{
-                     $('#cart_counter').html(response.cart_counter['cart_count']);
-                     $('#qty-'+food_id).html(response.qty);
-                }
-            }
-
-        })
-    })
-
-    // place the cart item quantity on load
-    $('.item_qty').each(function(){
-        var the_id = $(this).attr('id')
-        var qty = $(this).attr('data-qty')
-        $('#'+the_id).html(qty)
-    })
-
-    // decrease cart
-    $('.decrease_cart').on('click', function(e){
-        e.preventDefault();
-        
     food_id = $(this).attr('data-id');
     url = $(this).attr('data-url');
+    // alert(food_id);
+    // data when you send
+    data = {
+        food_id: food_id,
+    }
 
-    
     $.ajax({
         type: 'GET',
         url: url,
-        success: function(response){
-            console.log(response)
-            if(response.status == 'Failed'){
-                console.log(response)
-            }else{
-                 $('#cart_counter').html(response.cart_counter['cart_count']);
-                 $('#qty-'+food_id).html(response.qty);
+        data: data,
+        success: function (response) {
+            console.log(response);
+            //push value in html
+            if (response.status == 'Login required !') {
+                //sweet alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: response.status,
+                    // footer: '<a href="#">Why do I have this issue?</a>'
+                }).then(function () {
+                    window.location = '/login';
+                })
             }
+            else if (response.status == 'Failed') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: response.message,
+                    // footer: '<a href="#">Why do I have this issue?</a>'
+                })
+            }
+            else {
+                $('#cart_counter').html(response.cart_counter['cart_count']);
+                $('#qty-' + food_id).html(response.qty);
 
+                //cart subtotal, grand total, tax
+                applyCartAmount(
+                    response.cart_amount['subtotal'],
+                    response.cart_amount['tax_dict'],
+                    response.cart_amount['grand_total'],
 
+                )
 
-            
-        }
-
+                // console.log(response.cart_amount['tax_dict']);
+            }
+        },
+        // error: function(response) { 
+        //     alert(response);
+        // }
     })
- })
+})
+
+//place the cart item quantity on load
+$('.item_qty').each(function () {
+    var the_id = $(this).attr('id');
+    var qty = $(this).attr('data-qty');
+    // console.log(qty,the_id);
+    $('#' + the_id).html(qty);
+})
+
+//decrease cart
+$('.decrease_cart').on('click', function (e) {
+    e.preventDefault();
+
+    food_id = $(this).attr('data-id');
+    url = $(this).attr('data-url');
+    cart_id = $(this).attr('id');
+
+    // alert(food_id);
+    // data when you send
+    data = {
+        food_id: food_id,
+    }
+
+    $.ajax({
+        type: 'GET',
+        url: url,
+        data: data,
+        success: function (response) {
+            console.log(response);
+            //push value in html
+            if (response.status == 'Login require !') {
+                //sweet alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: response.status,
+                    // footer: '<a href="#">Why do I have this issue?</a>'
+                }).then(function () {
+                    window.location = '/login';
+                })
+            }
+            else if (response.status == 'Failed') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: response.message,
+                    // footer: '<a href="#">Why do I have this issue?</a>'
+                })
+            }
+            else {
+                $('#cart_counter').html(response.cart_counter['cart_count']);
+                $('#qty-' + food_id).html(response.qty);
+
+                //cart subtotal, grand total, tax
+                applyCartAmount(
+                    response.cart_amount['subtotal'],
+                    response.cart_amount['tax_dict'],
+                    response.cart_amount['grand_total'],
+
+                )
+
+                if (window.location.pathname == '/cart/') {
+                    removeCartItem(response.qty, cart_id);
+                    checkEmptyCart();
+                }
+
+            }
+        },
+    })
+})       
 });        
 
