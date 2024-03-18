@@ -12,6 +12,7 @@ autocomplete = new google.maps.places.Autocomplete(
 autocomplete.addListener('place_changed', onPlaceChanged);
 }
 
+
 function onPlaceChanged (){
     var place = autocomplete.getPlace();
 
@@ -36,7 +37,7 @@ function onPlaceChanged (){
 
             // console.log('lat=>', latitude);
             // console.log('long=>', longitude);
-            $('#id_latitude').val(latitude);
+            $('#id_letitude').val(latitude);
             $('#id_longitude').val(longitude);
 
             $('#id_address').val(address);

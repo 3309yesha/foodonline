@@ -129,3 +129,23 @@ def delete_cart(request, cart_id):
                 return JsonResponse({'status': 'Failed' , 'message': 'Cart item dose not exists!'})
         else:
             return JsonResponse({'status': 'Failed' , 'message': 'Invalid request!'})
+        
+
+
+def search(request):
+    address = request.GET['address']
+    letitude = request.GET['let']
+    longitude = request.GET['lng']
+    radius = request.GET['radius']
+    keyword = request.GET.get('keyword')
+
+    vendors = vendor.objects.filter(vendor_name__icontains=keyword, is_approved=True, user__is_active=True)
+    vendor_count =vendors.count()
+    context = {
+        'vendors' : vendors,
+        'vendor_count' : vendor_count,
+    }
+    
+    return render(request, 'marketplace/listings.html', context)
+    
+
