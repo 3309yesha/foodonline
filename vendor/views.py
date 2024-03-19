@@ -27,9 +27,8 @@ def get_vendor(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor) 
 def vprofile(request):
-    profile = get_object_or_404(UserProfile , user=request.user)
-    Vendor = get_vendor(request)
-
+    profile = get_object_or_404(UserProfile, user=request.user)
+    Vendor = get_object_or_404(vendor, user=request.user)
 
     if request.method == 'POST':
         profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
@@ -43,8 +42,9 @@ def vprofile(request):
             print(profile_form.errors)
             print(vendor_form.errors)
     else:
-        profile_form = UserProfileForm(instance=profile)
-        vendor_form = VendorForm(instance=profile)
+        profile_form = UserProfileForm(instance = profile)
+        vendor_form = VendorForm(instance = profile)
+    
     context = {
         'profile_form' : profile_form,
         'vendor_form' : vendor_form,
