@@ -22,16 +22,18 @@ def get_or_set_current_location(request):
 def home(request):
     if get_or_set_current_location(request) is not None:
         pnt = GEOSGeometry('POINT(%s %s)' % (get_or_set_current_location(request)))
+        
 
         vendors = vendor.objects.filter(
-        user_profile__location__distance_lte=(pnt, D(km=1000))
+        user_profile__location__distance_lte=(pnt, D(km=10000))
         ).annotate(distance=Distance("user_profile__location", pnt)).order_by("distance")
 
+        
         for v in vendors:
             v.kms = round(v.distance.km, 1)
-            print(v)
+            
     else:
-        vendors = vendor.objects.filter(is_approved=True, user__is_active=True)[:8]        
+        vendors = vendor.objects.filter(is_approved=True, user__is_active=True)[:8]     
     context = {
         'vendors': vendors,
     }

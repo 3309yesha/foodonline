@@ -11,53 +11,17 @@
                 <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                     <div class="tabs-holder horizontal">
                         <ul class="stickynav-tabs nav nav-tabs">
-                            <li class="active"><a data-toggle="tab" href="#home"><i class="fa fa-shopping-cart text-danger"></i>Cart Items</a></li>
+                            <li class="active"><a data-toggle="tab" href="#home"><i class="fa fa-shopping-cart text-danger"></i>Review Your Billing Address</a></li>
                             
                         </ul>
                         <div class="tab-content">
                             <div id="home" class="tab-pane in active">
                                 <div class="menu-itam-holder">
-                                    
-                                    <div class="text-center p-5" id="empty-cart" style="display: none;">
-                                        <h3>Cart is Empty</h3>
-                                    </div>
-
+                                
                                     <div id="menu-item-list-6272" class="menu-itam-list">
-                                        
-                                        
-                                        <ul>
-                                            {% if cart_items %}
-                                                {% for item in cart_items %}
-                                                <li id="cart-{{item.id}}">
-                                                    <div class="image-holder"> <img src="{{ item.fooditem.image.url }}" alt=""></div>
-                                                    <div class="text-holder">
-                                                        <h6>{{ item.fooditem }}</h6>
-                                                        <span>{{ item.fooditem.description }}</span>
-                                                        <a href="{% url 'vendor_detail' item.fooditem.vendor.vendor_slug %}" class="badge badge-warning">{{ item.fooditem.vendor }}</a>
-                                                    </div>
-                                                    <div class="price-holder">
-                                                        <span class="price">${{ item.fooditem.price }}</span>
-
-                                                        <a href="#" class="decrease_cart" data-id="{{ item.fooditem.id }}" id="{{item.id}}" data-url="{% url 'decrease_cart' item.fooditem.id %}" style="margin-right: 28px;"><i class="icon-minus text-color"></i></a>
-                                                        <label id="qty-{{item.fooditem.id}}">0</label>
-                                                        <a href="#" class="add_to_cart" data-id="{{ item.fooditem.id }}" data-url="{% url 'add_to_cart' item.fooditem.id %}"><i class="icon-plus text-color"></i></a>
-                                                        <a href="#" class="delete_cart" data-id="{{ item.id }}" data-url="{% url 'delete_cart' item.id %}"><i class="icon-delete text-color"></i></a>
-                                                    </div>
-                                                </li>
-                                                {% endfor %}
-                                            {% else %}
-                                                <div class="text-center p-5">
-                                                    <h3>Cart is Empty</h3>
-                                                </div>
-                                            {% endif %}
-                                        </ul>
-                                        
-                                        
+                                
                                     </div>
-                                    {% for item in cart_items %}
-
-                                    <span id="qty-{{item.fooditem.id}}" class="item_qty d-none" data-qty="{{ item.quantity }}">{{ item.quantity }}</span>
-                                    {% endfor %}
+                                    
                                 </div>
                             </div>
                             
@@ -105,7 +69,8 @@
                                                 </span>
                                             </li>
 
-                                            <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2 mt-3">PROCEED TO CHECKOUT</a>
+                                           <!-- PayPal Checkout Button -->
+                                           <div id="paypal-button-container"></div>
                                         </ul>
 
                                     </div>
@@ -123,4 +88,85 @@
 </div>
 <!-- Main Section End -->
 
+<script>
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+   
+
+    var grand_total = "{{ grand_total }}"
+    var url = "{% url 'payments' %}"
+    var order_number = "{{ order.order_number }}"
+    const csrftoken = getCookie('csrftoken');
+    consol.log('csrftoken===>', csrftoken)
+    // Render the PayPal button into #paypal-button-container
+    paypal.Buttons({
+
+   // Set up the transaction
+    createOrder: function(data, actions) {
+        return actions.order.create({
+            purchase_units: [{
+                amount: {
+                    value: grand_total
+                }
+            }]
+        });
+    },
+
+    // Finalize the transaction
+    onApprove: function(data, actions) {
+        return actions.order.capture().then(function(orderData) {
+            // Successful capture! For demo purposes:
+            consol.log(orderData)
+            var transaction = orderData.purchase_units[0].paymrnts.captures[0];
+            
+
+            var transaction_id = transaction.id
+            var status = orderData.status
+            var payment_method = 'PayPal'
+            sendTransaction(transaction_id, payment_method, status);
+
+            
+            // Replace the above to show a success message within this page, e.g.
+            // const element = document.getElementById('paypal-button-container');
+            // element.innerHTML = '';
+            // element.innerHTML = '<h4 class="text-center"><i class="fa fa-spinner fa-spin"></i> Please wait...</h4>';
+            // Or go to another URL:  actions.redirect('thank_you.html');
+        });
+    }
+
+}).render('#paypal-button-container');
+
+
+// Send the data to payments view to store in the database
+function sendTransaction(transaction_id, payment_method, status){
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                'order_number': order_number,
+                'transaction_id': transaction_id,
+                'payment_method': payment_method,
+                'status': status,
+                'csrfmiddlewaretoken': csrftoken
+            },
+            success: function(response){
+                console.log('response==>', response)
+                 //window.location.href = order_complete +'?order_no='+response.order_number+'&trans_id='+response.transaction_id
+            }
+        })
+    }
+</script>
 {% endblock %}
