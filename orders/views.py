@@ -13,8 +13,6 @@ def place_order(request):
     if cart_count <= 0:
         return redirect('marketplace')
 
-
-
     subtotal = get_cart_amounts(request)['subtotal']
     total_tax = get_cart_amounts(request)['tax']
     grand_total = get_cart_amounts(request)['grand_total']

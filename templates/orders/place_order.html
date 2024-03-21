@@ -19,6 +19,12 @@
                                 <div class="menu-itam-holder">
                                 
                                     <div id="menu-item-list-6272" class="menu-itam-list">
+
+                                        <div class="billing-address">
+                                            <div><b>{{ order.name }}</b></div>
+                                            <div>{{ order.address}}</div>
+                                            <div>{{ order.city }}</div>
+                                        </div>
                                 
                                     </div>
                                     
@@ -68,9 +74,9 @@
                                                     <span id="total">{{ grand_total }}</span>
                                                 </span>
                                             </li>
-
-                                           <!-- PayPal Checkout Button -->
-                                           <div id="paypal-button-container"></div>
+                                            
+                                            <!-- PayPal Checkout Button -->
+                                            <div id="paypal-button-container"></div>
                                         </ul>
 
                                     </div>
@@ -104,13 +110,13 @@
         }
         return cookieValue;
     }
-   
+
 
     var grand_total = "{{ grand_total }}"
     var url = "{% url 'payments' %}"
     var order_number = "{{ order.order_number }}"
     const csrftoken = getCookie('csrftoken');
-    consol.log('csrftoken===>', csrftoken)
+    console.log('csrftoken==>', csrftoken)
     // Render the PayPal button into #paypal-button-container
     paypal.Buttons({
 
@@ -129,16 +135,13 @@
     onApprove: function(data, actions) {
         return actions.order.capture().then(function(orderData) {
             // Successful capture! For demo purposes:
-            consol.log(orderData)
+            consol.log(orderData);
             var transaction = orderData.purchase_units[0].paymrnts.captures[0];
-            
 
             var transaction_id = transaction.id
             var status = orderData.status
             var payment_method = 'PayPal'
             sendTransaction(transaction_id, payment_method, status);
-
-            
             // Replace the above to show a success message within this page, e.g.
             // const element = document.getElementById('paypal-button-container');
             // element.innerHTML = '';
@@ -166,7 +169,7 @@ function sendTransaction(transaction_id, payment_method, status){
                 console.log('response==>', response)
                  //window.location.href = order_complete +'?order_no='+response.order_number+'&trans_id='+response.transaction_id
             }
-        })
+       })
     }
 </script>
 {% endblock %}
