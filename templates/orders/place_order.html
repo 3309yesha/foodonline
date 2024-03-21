@@ -23,7 +23,14 @@
                                         <div class="billing-address">
                                             <div><b>{{ order.name }}</b></div>
                                             <div>{{ order.address}}</div>
-                                            <div>{{ order.city }}</div>
+                                            <div>{{ order.city }} - {{ order.pin_code }}</div>
+                                            <div>{{ order.state }}, {{ order.country }}</div>
+                                            <div><b>Phone:</b>{{ order.phone }}</div>
+                                            <div><b>Email:</b>{{ order.email }}</div>
+                                            <div><b>Payment:</b>{{ order.payment_method }}</div>
+                                            <br>
+                                            <div><a href="{% url 'checkout' %}" class="btn btn-outline-danger">Edit</a></div>
+                                            <br>
                                         </div>
                                 
                                     </div>
@@ -47,6 +54,20 @@
                                 <div class="menu-itam-holder">
 
                                     <div>
+
+                                        <table class="table">
+                                            <tbody>
+                                                {% for item in cart_items %}
+                                                <tr>
+                                                    <td><img src="{{ item.fooditem.image.url }}" width="40" alt="Food Image"></td>
+                                                    <td><b>{{ item.fooditem }}</b></td>
+                                                    <td>{{ item.quantity }}</td>
+                                                    <td>${{ item.fooditem.price }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+
                                         <ul>
                                             <li style="list-style-type: none;">
                                                 Subtotal
@@ -135,7 +156,7 @@
     onApprove: function(data, actions) {
         return actions.order.capture().then(function(orderData) {
             // Successful capture! For demo purposes:
-            consol.log(orderData);
+            console.log(orderData);
             var transaction = orderData.purchase_units[0].paymrnts.captures[0];
 
             var transaction_id = transaction.id
