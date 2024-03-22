@@ -1,3 +1,4 @@
+import datetime
 from django.http import HttpResponse
 from django.shortcuts import redirect,render
 from django.utils.http import urlsafe_base64_decode
@@ -187,12 +188,24 @@ def vendorDashboard(request):
     Vendor = vendor.objects.get(user=request.user)
     orders = Order.objects.filter(Vendors__in=[Vendor.id], is_ordered=True).order_by('created_at')
     recent_orders = orders[:10]
+    # current month's revenue
+    current_month = datetime.datetime.now().month
+    current_month_orders = orders.filter(Vendors__in=[Vendor.id], created_at__month=current_month)
+    current_month_revenue = 0
+    for i in current_month_orders:
+        current_month_revenue += i.get_total_by_vendor()['grand_total']
+    
+
+    # total revenue
+    total_revenue = 0
+    for i in orders:
+        total_revenue += i.get_total_by_vendor()['grand_total']
     context = {
         'orders': orders,
         'orders_count': orders.count(),
         'recent_orders': recent_orders,
-        #'total_revenue': total_revenue,
-        #'current_month_revenue': current_month_revenue,
+        'total_revenue': total_revenue,
+        'current_month_revenue': current_month_revenue,
     }
     return render(request, 'accounts/vendorDashboard.html', context)
 
