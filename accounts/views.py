@@ -12,6 +12,7 @@ from django.core.exceptions import PermissionDenied
 from vendor.models import vendor
 from .context_processors import get_vendor
 from django.template.defaultfilters import slugify
+from orders.models import Order
 
 # Restrict the vendor from accessing the customer page
 def check_role_vendor(user):
@@ -170,17 +171,28 @@ def myAccount(request):
 @login_required(login_url='login')
 @user_passes_test(check_role_customer)
 def custDashboard(request):
-    return render(request, 'accounts/custDashboard.html')
+    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    recent_orders = orders[:5]
+    context = {
+        'orders': orders,
+        'orders_count': orders.count(),
+        'recent_orders': recent_orders,
+    }
+    return render(request, 'accounts/custDashboard.html', context)
 
 
 @login_required(login_url='login')
 @user_passes_test(check_role_vendor)
 def vendorDashboard(request):
     Vendor = vendor.objects.get(user=request.user)
-
-    # print(Vendor)
+    orders = Order.objects.filter(Vendors__in=[Vendor.id], is_ordered=True).order_by('created_at')
+    recent_orders = orders[:10]
     context = {
-        'vendor' : Vendor,
+        'orders': orders,
+        'orders_count': orders.count(),
+        'recent_orders': recent_orders,
+        #'total_revenue': total_revenue,
+        #'current_month_revenue': current_month_revenue,
     }
     return render(request, 'accounts/vendorDashboard.html', context)
 
